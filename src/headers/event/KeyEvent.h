@@ -207,6 +207,8 @@ class KeyEvent {
   Modifiers modifiers;
   // 事件类型
   KeyEventType type;
+  // 时间戳
+  long long time;
 
 public:
   KeyEvent(int r, const char *k, Modifiers &m, KeyEventType type);

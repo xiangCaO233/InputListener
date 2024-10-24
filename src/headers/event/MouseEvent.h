@@ -12,6 +12,8 @@ class MouseEvent {
   Modifiers modifiers;
   // 事件类型
   MouseEventType type;
+  // 时间戳
+  long long time;
   // 鼠标位置x
   int xv;
   // 鼠标位置x2d
