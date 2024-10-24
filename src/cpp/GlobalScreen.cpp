@@ -6,12 +6,11 @@
 KeyEventDispatcher GlobalScreen::keyEventDispatcher;
 MouseEventDispatcher GlobalScreen::mouseEventDispatcher;
 
-std::thread GlobalScreen::loopThread;
-
 #ifdef __APPLE__
 // macos所需
 CFRunLoopSourceRef GlobalScreen::runLoopSource;
 CFMachPortRef GlobalScreen::eventTap;
+std::thread GlobalScreen::loopThread;
 #elif defined(__Linux__)
 // linux所需
 
@@ -50,15 +49,72 @@ void GlobalScreen::registerScreenHook() {
   CGEventTapEnable(eventTap, true);
   // 创建循环线程
   loopThread = std::thread(CFRunLoopRun);
-#elif defined(__Linux__)
-  // linux注册
-
-#endif
-
-  // 公共代码
-
   // 分离线程
   loopThread.detach();
+#elif defined(__unix__)
+  // linux注册
+  const char *inputDir = "/dev/input";
+  DIR *dir = opendir(inputDir);
+  if (dir == nullptr) {
+    std::cerr << "无法打开输入设备目录: " << strerror(errno) << std::endl;
+  }
+
+  struct dirent *entry;
+
+  std::vector<std::string> mouse_devices;
+  std::vector<std::string> keyboard_devices;
+  while ((entry = readdir(dir)) != nullptr) {
+    // 过滤掉 . 和 .. 目录
+    if (entry->d_name[0] == '.')
+      continue;
+
+    std::string devicePath = std::string(inputDir) + "/" + entry->d_name;
+    if (devicePath.find("event") != std::string::npos) {
+      if (isKeyboard(devicePath)) {
+        std::cout << "找到键盘设备: " << devicePath << "->"
+                  << getDeviceName(devicePath) << std::endl;
+        keyboard_devices.push_back(std::string(devicePath));
+      }
+      if (isMouse(devicePath)) {
+        std::cout << "找到鼠标设备: " << devicePath << "->"
+                  << getDeviceName(devicePath) << std::endl;
+        mouse_devices.push_back(std::string(devicePath));
+      }
+    }
+  }
+  std::string prefix = "/dev/input/event";
+  printf("请选择监听的鼠标设备:[number]\n");
+  std::string mousenum;
+  std::getline(std::cin, mousenum);
+  std::string mouse = prefix + mousenum;
+
+  auto mit = std::find(mouse_devices.begin(), mouse_devices.end(), mouse);
+  if (mit == mouse_devices.end())
+    std::cerr << "不存在设备:" << mouse << std::endl;
+
+  printf("请选择监听的键盘设备:[number]\n");
+  std::string keyboardnum;
+  std::getline(std::cin, keyboardnum);
+  std::string keyboard = prefix + keyboardnum;
+  auto kit =
+      std::find(keyboard_devices.begin(), keyboard_devices.end(), keyboard);
+  if (kit == keyboard_devices.end())
+    std::cerr << "不存在设备:" << keyboard << std::endl;
+
+  std::cout << "开始监听:\n"
+            << "mouse:" << mouse << "\n"
+            << std::endl;
+  std::cout << "keyboard:" << keyboard << "\n" << std::endl;
+  std::vector<std::string> devices = {keyboard, mouse};
+
+  // 创建线程来监听每个设备
+  for (const auto &device : devices) {
+    std::thread t(listenToDevice, device);
+    t.detach(); // 将线程设置为分离状态
+  }
+  closedir(dir);
+#endif
+  // 公共代码
 }
 
 void GlobalScreen::unRegisterScreenHook() {
@@ -66,7 +122,7 @@ void GlobalScreen::unRegisterScreenHook() {
   // macos
   CFRelease(runLoopSource);
   CFRelease(eventTap);
-#elif defined(__Linux__)
+#elif defined(__unix__)
   // linux
 
 #endif
@@ -190,9 +246,98 @@ void GlobalScreen::msendMouseEvent(int button, MouseEventType type,
                           (int)location.y, location.x, location.y);
   mouseEventDispatcher.dispatchEvent(*e);
 }
-#elif defined(__Linux__)
+#elif defined(__unix__)
 // linux
+// 获取设备名称
+std::string GlobalScreen::getDeviceName(const std::string &devicePath) {
+  int fd = open(devicePath.c_str(), O_RDONLY);
+  if (fd < 0) {
+    std::cerr << "无法打开设备 " << devicePath << ": " << strerror(errno)
+              << std::endl;
+    return "未知设备";
+  }
 
+  char name[256] = "Unknown";
+  if (ioctl(fd, EVIOCGNAME(sizeof(name)), name) < 0) {
+    std::cerr << "无法获取设备名称: " << strerror(errno) << std::endl;
+    close(fd);
+    return "未知设备";
+  }
+
+  close(fd);
+  return std::string(name);
+};
+// 检查是否是键盘
+bool GlobalScreen::isKeyboard(const std::string &devicePath) {
+  int fd = open(devicePath.c_str(), O_RDONLY);
+  if (fd < 0) {
+    std::cerr << "无法打开设备 " << devicePath << ": " << strerror(errno)
+              << std::endl;
+    return false;
+  }
+
+  // 获取设备支持的事件类型
+  unsigned long evbit[EV_MAX / 8 + 1];
+  memset(evbit, 0, sizeof(evbit));
+  if (ioctl(fd, EVIOCGBIT(0, EV_MAX), evbit) < 0) {
+    std::cerr << "无法获取事件位图: " << strerror(errno) << std::endl;
+    close(fd);
+    return false;
+  }
+
+  close(fd);
+
+  // 检查是否是键盘（是否支持 EV_KEY 事件）
+  bool hasKeyEvents = evbit[EV_KEY / 8] & (1 << (EV_KEY % 8));
+  return hasKeyEvents;
+};
+// 检查是否是鼠标
+bool GlobalScreen::isMouse(const std::string &devicePath) {
+  int fd = open(devicePath.c_str(), O_RDONLY);
+  if (fd < 0) {
+    std::cerr << "无法打开设备 " << devicePath << ": " << strerror(errno)
+              << std::endl;
+    return false;
+  }
+
+  // 获取设备支持的事件类型
+  unsigned long evbit[EV_MAX / 8 + 1];
+  memset(evbit, 0, sizeof(evbit));
+  if (ioctl(fd, EVIOCGBIT(0, EV_MAX), evbit) < 0) {
+    std::cerr << "无法获取事件位图: " << strerror(errno) << std::endl;
+    close(fd);
+    return false;
+  }
+
+  close(fd);
+
+  // 检查是否是鼠标（是否支持 EV_REL 事件，用于相对运动检测）
+  bool hasRelativeMovement = evbit[EV_REL / 8] & (1 << (EV_REL % 8));
+  return hasRelativeMovement;
+};
+// 开始监听指定设备
+void GlobalScreen::listenToDevice(const std::string &devicePath) {
+  int fd = open(devicePath.c_str(), O_RDONLY);
+  if (fd < 0) {
+    std::cerr << "无法打开设备 " << devicePath << ": " << strerror(errno)
+              << std::endl;
+    return;
+  }
+  struct input_event ev;
+  while (true) {
+    ssize_t n = read(fd, &ev, sizeof(ev));
+    if (n == (ssize_t)sizeof(ev)) {
+      std::cout << "设备: " << devicePath << " 时间戳: " << ev.time.tv_sec
+                << "." << ev.time.tv_usec << " 类型: " << ev.type
+                << " 代码: " << ev.code << " 值: " << ev.value << std::endl;
+    } else {
+      std::cerr << "读取事件失败: " << strerror(errno) << std::endl;
+      break;
+    }
+  }
+
+  close(fd);
+};
 #endif
 
 // 公共

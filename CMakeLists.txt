@@ -15,11 +15,6 @@ if(UNIX)
   # 查找库
 endif(UNIX)
 
-find_package(
-  Qt6
-  COMPONENTS Core Gui Widgets
-  REQUIRED)
-
 set(INCLUDES src/headers)
 
 set(SOURCES
@@ -53,16 +48,11 @@ if(APPLE)
     InputListener
     ${CARBON_LIBRARY}
     ${COREFOUNDATION_LIBRARY}
-    ${APPLICATION_SERVICES_LIBRARY}
-    Qt::Core
-    Qt::Gui
-    Qt::Widgets)
+    ${APPLICATION_SERVICES_LIBRARY})
 elseif(UNIX)
   target_link_libraries(InputLsnr-static)
   target_link_libraries(InputLsnr-dynamic)
-  target_link_libraries(InputLsnr Qt::Core Qt::Gui Qt::Widgets)
 elseif(WIN32)
   target_link_libraries(InputLsnr-static)
   target_link_libraries(InputLsnr-dynamic)
-  target_link_libraries(InputLsnr Qt::Core Qt::Gui Qt::Widgets)
 endif()

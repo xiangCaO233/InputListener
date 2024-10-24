@@ -1,6 +1,6 @@
 #include "../headers/GlobalScreen.h"
 #include "listener/KeyListener.h"
-#include <QApplication>
+#include <cstdio>
 #include <iostream>
 #include <ostream>
 #include <unistd.h>
@@ -29,7 +29,6 @@ class MyMouseListener : public MouseListener {
 };
 
 int main(int argc, char *argv[]) {
-  QApplication app(argc, argv);
   GlobalScreen::registerScreenHook();
   auto l = new MyKeyListener;
   auto l2 = new MyMouseListener;
@@ -38,5 +37,7 @@ int main(int argc, char *argv[]) {
 
   GlobalScreen::removeMouseListener(l2);
 
-  return app.exec();
+  while (true) {
+    getchar();
+  }
 }
