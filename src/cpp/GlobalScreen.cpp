@@ -13,6 +13,7 @@ CFMachPortRef GlobalScreen::eventTap;
 std::thread GlobalScreen::loopThread;
 #elif defined(__Linux__)
 // linux所需
+#include <vector>
 
 #endif
 
@@ -327,9 +328,14 @@ void GlobalScreen::listenToDevice(const std::string &devicePath) {
   while (true) {
     ssize_t n = read(fd, &ev, sizeof(ev));
     if (n == (ssize_t)sizeof(ev)) {
-      std::cout << "设备: " << devicePath << " 时间戳: " << ev.time.tv_sec
-                << "." << ev.time.tv_usec << " 类型: " << ev.type
-                << " 代码: " << ev.code << " 值: " << ev.value << std::endl;
+      KEY_5;
+      if (ev.type == EV_KEY && (ev.value == 1 || ev.value == 0)) {
+        std::cout << "code:" << ev.code << std::endl;
+        std::cout << "字符:" << Mapping::linux_keymap.at(ev.code) << std::endl;
+      }
+      // std::cout << "设备: " << devicePath << " 时间戳: " << ev.time.tv_sec
+      //           << "." << ev.time.tv_usec << " 类型: " << ev.type
+      //           << " 代码: " << ev.code << " 值: " << ev.value << std::endl;
     } else {
       std::cerr << "读取事件失败: " << strerror(errno) << std::endl;
       break;

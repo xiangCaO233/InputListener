@@ -24,7 +24,6 @@
 #include <string>
 #include <sys/ioctl.h>
 #include <unistd.h>
-#include <vector>
 
 // 其他 Linux 特定实现
 #endif // defined(__unix__)
