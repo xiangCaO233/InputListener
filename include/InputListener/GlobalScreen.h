@@ -29,9 +29,11 @@
 #endif // defined(__unix__)
 
 // 公共头
-#include "dispatcher/KeyEventDispatcher.h"
-#include "dispatcher/MouseEventDispatcher.h"
+#include <InputListener/dispatcher/KeyEventDispatcher.h>
+#include <InputListener/dispatcher/MouseEventDispatcher.h>
 #include <thread>
+
+namespace InputListener {
 
 class GlobalScreen {
   // 事件派遣器
@@ -88,5 +90,7 @@ public:
   static void listenToDevice(const std::string &devicePath);
 #endif
 };
+
+} // namespace InputListener
 
 #endif // GLOBALSCREEN_GLOBALSCREEN_H

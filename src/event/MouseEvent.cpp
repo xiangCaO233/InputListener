@@ -1,5 +1,6 @@
-#include "../../headers/event/MouseEvent.h"
-#include "event/KeyEvent.h"
+#include <InputListener/event/MouseEvent.h>
+
+namespace InputListener {
 
 MouseEvent::MouseEvent(int b, Modifiers &m, MouseEventType t, int x, int y,
                        double x2d, double y2d)
@@ -19,3 +20,5 @@ int MouseEvent::Y() const { return yv; }
 double MouseEvent::X2D() const { return xd; }
 
 double MouseEvent::Y2D() const { return yd; }
+
+} // namespace InputListener

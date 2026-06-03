@@ -1,8 +1,10 @@
 #ifndef MOUSEEVENTDISPATCHER_H
 #define MOUSEEVENTDISPATCHER_H
 
-#include "../listener/MouseListener.h"
+#include <InputListener/listener/MouseListener.h>
 #include <vector>
+
+namespace InputListener {
 
 class MouseEventDispatcher {
   std::vector<MouseListener *> listeners;
@@ -20,5 +22,7 @@ public:
   // 分派事件
   void dispatchEvent(const MouseEvent &e);
 };
+
+} // namespace InputListener
 
 #endif // MOUSEEVENTDISPATCHER_H

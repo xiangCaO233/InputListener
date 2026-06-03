@@ -1,7 +1,9 @@
 #ifndef MOUSEEVENT_MOUSEEVENT_H
 #define MOUSEEVENT_MOUSEEVENT_H
 
-#include "KeyEvent.h"
+#include <InputListener/event/KeyEvent.h>
+
+namespace InputListener {
 
 enum class MouseEventType { PRESS, RELEASE, MOVE, DRAG, PRESSED, DRAGGED };
 
@@ -42,5 +44,7 @@ public:
 
   double Y2D() const;
 };
+
+} // namespace InputListener
 
 #endif // MOUSEEVENT_MOUSEEVENT_H

@@ -1,58 +1,61 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.16)
 
-project(InputListener)
+project(InputListener VERSION 0.1.0 LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+include(GNUInstallDirs)
 
-if(APPLE)
-  # 查找 ApplicationServices, CoreFoundation ,Carbon框架
-  find_library(APPLICATION_SERVICES_LIBRARY ApplicationServices)
-  find_library(COREFOUNDATION_LIBRARY CoreFoundation)
-  find_library(CARBON_LIBRARY Carbon)
-endif(APPLE)
-if(UNIX)
-  # 查找库
-endif(UNIX)
+option(INPUTLISTENER_BUILD_EXAMPLES "Build InputListener example programs" ON)
 
-set(INCLUDES src/headers)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(SOURCES
-    src/cpp/GlobalScreen.cpp
-    src/cpp/dispatcher/MouseEventDispatcher.cpp
-    src/cpp/dispatcher/KeyEventDispatcher.cpp
-    src/cpp/event/KeyEvent.cpp
-    src/cpp/event/MouseEvent.cpp
-    src/cpp/listener/KeyListener.cpp
-    src/cpp/listener/MouseListener.cpp)
+set(INPUTLISTENER_SOURCES
+    src/GlobalScreen.cpp
+    src/dispatcher/KeyEventDispatcher.cpp
+    src/dispatcher/MouseEventDispatcher.cpp
+    src/event/KeyEvent.cpp
+    src/event/MouseEvent.cpp
+    src/listener/KeyListener.cpp
+    src/listener/MouseListener.cpp)
 
-add_library(InputLsnr-static STATIC ${SOURCES})
-add_library(InputLsnr-dynamic SHARED ${SOURCES})
+add_library(InputListener ${INPUTLISTENER_SOURCES})
+add_library(InputListener::InputListener ALIAS InputListener)
 
-add_executable(InputListener ${SOURCES} src/cpp/test.cpp)
+target_compile_features(InputListener PUBLIC cxx_std_17)
 
-target_include_directories(InputListener PUBLIC ${INCLUDES})
-target_include_directories(InputLsnr-static PUBLIC ${INCLUDES})
-target_include_directories(InputLsnr-dynamic PUBLIC ${INCLUDES})
+target_include_directories(
+  InputListener
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+
+find_package(Threads REQUIRED)
+target_link_libraries(InputListener PUBLIC Threads::Threads)
 
 if(APPLE)
-  target_link_libraries(
-    InputLsnr-static ${CARBON_LIBRARY} ${COREFOUNDATION_LIBRARY}
-    ${APPLICATION_SERVICES_LIBRARY})
-  target_link_libraries(
-    InputLsnr-dynamic ${CARBON_LIBRARY} ${COREFOUNDATION_LIBRARY}
-    ${APPLICATION_SERVICES_LIBRARY})
+  find_library(APPLICATION_SERVICES_LIBRARY ApplicationServices REQUIRED)
+  find_library(COREFOUNDATION_LIBRARY CoreFoundation REQUIRED)
+  find_library(CARBON_LIBRARY Carbon REQUIRED)
 
-  # 链接 Carbon 和 CoreFoundation 库
-  target_link_libraries(
-    InputListener
-    ${CARBON_LIBRARY}
-    ${COREFOUNDATION_LIBRARY}
-    ${APPLICATION_SERVICES_LIBRARY})
-elseif(UNIX)
-  target_link_libraries(InputLsnr-static)
-  target_link_libraries(InputLsnr-dynamic)
-elseif(WIN32)
-  target_link_libraries(InputLsnr-static)
-  target_link_libraries(InputLsnr-dynamic)
+  target_link_libraries(InputListener PUBLIC ${CARBON_LIBRARY}
+                                             ${COREFOUNDATION_LIBRARY}
+                                             ${APPLICATION_SERVICES_LIBRARY})
 endif()
+
+if(INPUTLISTENER_BUILD_EXAMPLES)
+  add_executable(InputListenerBasicExample examples/basic.cpp)
+  target_link_libraries(InputListenerBasicExample
+                        PRIVATE InputListener::InputListener)
+endif()
+
+install(
+  TARGETS InputListener
+  EXPORT InputListenerTargets
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install(
+  EXPORT InputListenerTargets
+  NAMESPACE InputListener::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/InputListener)

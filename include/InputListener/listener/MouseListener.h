@@ -1,10 +1,14 @@
 #ifndef MOUSELISTENER_MOUSELISTENER_H
 #define MOUSELISTENER_MOUSELISTENER_H
 
-#include "../event/MouseEvent.h"
+#include <InputListener/event/MouseEvent.h>
+
+namespace InputListener {
 
 class MouseListener {
 public:
+  virtual ~MouseListener() = default;
+
   // 鼠标按下
   virtual void onPress(const MouseEvent &e);
   // 鼠标释放
@@ -18,5 +22,7 @@ public:
   // 鼠标拖动完成
   virtual void onDragged(const MouseEvent &e);
 };
+
+} // namespace InputListener
 
 #endif // MOUSELISTENER_MOUSELISTENER_H

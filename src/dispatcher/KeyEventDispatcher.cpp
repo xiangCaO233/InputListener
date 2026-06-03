@@ -1,5 +1,8 @@
-#include "../headers/dispatcher/KeyEventDispatcher.h"
+#include <InputListener/dispatcher/KeyEventDispatcher.h>
+
 #include <iostream>
+
+namespace InputListener {
 
 KeyEventDispatcher::KeyEventDispatcher() {}
 
@@ -25,7 +28,7 @@ void KeyEventDispatcher::removeListener(KeyListener *listener) {
   }
 }
 // 分派事件
-void KeyEventDispatcher::dispachEvent(const KeyEvent &event) {
+void KeyEventDispatcher::dispatchEvent(const KeyEvent &event) {
   // std::cout << "监听器列表长度：" << listeners.size() << std::endl;
   for (auto l : listeners) {
     auto t = event.getType();
@@ -45,3 +48,5 @@ void KeyEventDispatcher::dispachEvent(const KeyEvent &event) {
     }
   }
 }
+
+} // namespace InputListener

@@ -3,11 +3,13 @@
 
 #include <unordered_map>
 
+namespace InputListener {
+
 struct Modifiers {
-  bool shift;
-  bool control;
-  bool option;
-  bool command;
+  bool shift = false;
+  bool control = false;
+  bool option = false;
+  bool command = false;
 };
 
 enum class KeyEventType { PRESS, RELEASE, PRESSED };
@@ -16,7 +18,7 @@ namespace Mapping {
 
 #ifdef __APPLE__
 // 不按住 Shift 时的输出
-static std::unordered_map<int, const char *> normalKeyMap = {
+inline const std::unordered_map<int, const char *> normalKeyMap = {
     {0, "a"},
     {11, "b"},
     {8, "c"},
@@ -108,7 +110,7 @@ static std::unordered_map<int, const char *> normalKeyMap = {
     {125, "↓"}};
 
 // 按住 Shift 时的输出
-static std::unordered_map<int, const char *> shiftKeyMap = {
+inline const std::unordered_map<int, const char *> shiftKeyMap = {
     {0, "A"},
     {11, "B"},
     {8, "C"},
@@ -201,7 +203,7 @@ static std::unordered_map<int, const char *> shiftKeyMap = {
     {125, "\u2B07"}};//down
 #endif //__APPLE__
 #ifdef __unix__
-static std::unordered_map<int, const char *> linux_keymap = {
+inline const std::unordered_map<int, const char *> linux_keymap = {
     {2, "1"},        {3, "2"},    {4, "3"},    {5, "4"},      {6, "5"},
     {7, "6"},        {8, "7"},    {9, "8"},    {10, "9"},     {11, "0"},
     {16, "q"},       {17, "w"},   {18, "e"},   {19, "r"},     {20, "t"},
@@ -240,7 +242,7 @@ static std::unordered_map<int, const char *> linux_keymap = {
     {40, "'"},       {41, "`"},   {43, "\\"},  {51, ","},     {52, "."},
     {53, "/"}};
 
-static std::unordered_map<int, const char *> linux_shift_keymap = {
+inline const std::unordered_map<int, const char *> linux_shift_keymap = {
     {2, "!"},        {3, "@"},    {4, "#"},    {5, "$"},      {6, "%"},
     {7, "^"},        {8, "&"},    {9, "*"},    {10, "("},     {11, ")"},
     {16, "Q"},       {17, "W"},   {18, "E"},   {19, "R"},     {20, "T"},
@@ -280,6 +282,7 @@ static std::unordered_map<int, const char *> linux_shift_keymap = {
     {53, "?"}};
 #endif //__unix__
 } // namespace Mapping
+
 class KeyEvent {
   // 原始键值
   int rawCode;
@@ -301,5 +304,7 @@ public:
   Modifiers getModifiers() const;
   KeyEventType getType() const;
 };
+
+} // namespace InputListener
 
 #endif // KEYEVENT_KEYEVENT_H

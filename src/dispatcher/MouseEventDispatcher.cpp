@@ -1,4 +1,6 @@
-#include "../../headers/dispatcher/MouseEventDispatcher.h"
+#include <InputListener/dispatcher/MouseEventDispatcher.h>
+
+namespace InputListener {
 
 MouseEventDispatcher::MouseEventDispatcher(){};
 
@@ -22,6 +24,7 @@ void MouseEventDispatcher::removeListener(MouseListener *listener) {
     }
   }
 }
+
 // 分派事件
 void MouseEventDispatcher::dispatchEvent(const MouseEvent &e) {
   for (auto l : listeners) {
@@ -53,3 +56,5 @@ void MouseEventDispatcher::dispatchEvent(const MouseEvent &e) {
     }
   }
 }
+
+} // namespace InputListener

@@ -1,20 +1,20 @@
-#include "../headers/GlobalScreen.h"
-#include "event/KeyEvent.h"
-#include "event/MouseEvent.h"
+#include <InputListener/GlobalScreen.h>
+#include <InputListener/event/KeyEvent.h>
+#include <InputListener/event/MouseEvent.h>
+
 #include <iostream>
+#include <vector>
+
+namespace InputListener {
 
 KeyEventDispatcher GlobalScreen::keyEventDispatcher;
 MouseEventDispatcher GlobalScreen::mouseEventDispatcher;
+std::thread GlobalScreen::loopThread;
 
 #ifdef __APPLE__
 // macos所需
 CFRunLoopSourceRef GlobalScreen::runLoopSource;
 CFMachPortRef GlobalScreen::eventTap;
-std::thread GlobalScreen::loopThread;
-#elif defined(__Linux__)
-// linux所需
-#include <vector>
-
 #endif
 
 void GlobalScreen::registerScreenHook() {
@@ -237,15 +237,15 @@ const char *GlobalScreen::mGetCharacterFromKeyCode(CGKeyCode keycode,
 void GlobalScreen::msendKeyEvent(CGKeyCode rawCode, const char *key,
                                  KeyEventType type, Modifiers &modifiers) {
 
-  auto e = new KeyEvent(rawCode, key, modifiers, type);
-  keyEventDispatcher.dispachEvent(*e);
+  KeyEvent e(rawCode, key, modifiers, type);
+  keyEventDispatcher.dispatchEvent(e);
 }
 
 void GlobalScreen::msendMouseEvent(int button, MouseEventType type,
                                    Modifiers &modifiers, CGPoint &location) {
-  auto e = new MouseEvent(button, modifiers, type, (int)location.x,
-                          (int)location.y, location.x, location.y);
-  mouseEventDispatcher.dispatchEvent(*e);
+  MouseEvent e(button, modifiers, type, (int)location.x, (int)location.y,
+               location.x, location.y);
+  mouseEventDispatcher.dispatchEvent(e);
 }
 #elif defined(__unix__)
 // linux
@@ -362,3 +362,5 @@ void GlobalScreen::addMouseListener(MouseListener *listener) {
 void GlobalScreen::removeMouseListener(MouseListener *listener) {
   mouseEventDispatcher.removeListener(listener);
 }
+
+} // namespace InputListener
