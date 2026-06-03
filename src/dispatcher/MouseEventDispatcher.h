@@ -1,5 +1,4 @@
-#ifndef INPUTLISTENER_SRC_DISPATCHER_MOUSEEVENTDISPATCHER_H
-#define INPUTLISTENER_SRC_DISPATCHER_MOUSEEVENTDISPATCHER_H
+#pragma once
 
 /**
  * @file MouseEventDispatcher.h
@@ -59,4 +58,3 @@ public:
 
 } // namespace InputListener
 
-#endif // INPUTLISTENER_SRC_DISPATCHER_MOUSEEVENTDISPATCHER_H

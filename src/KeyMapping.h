@@ -1,5 +1,4 @@
-#ifndef INPUTLISTENER_SRC_KEYMAPPING_H
-#define INPUTLISTENER_SRC_KEYMAPPING_H
+#pragma once
 
 /**
  * @file KeyMapping.h
@@ -317,4 +316,3 @@ inline const char *keyTextForCode(int code, bool shiftPressed) {
 
 } // namespace InputListener
 
-#endif // INPUTLISTENER_SRC_KEYMAPPING_H

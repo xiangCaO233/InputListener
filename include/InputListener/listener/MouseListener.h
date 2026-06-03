@@ -1,5 +1,4 @@
-#ifndef MOUSELISTENER_MOUSELISTENER_H
-#define MOUSELISTENER_MOUSELISTENER_H
+#pragma once
 
 /**
  * @file MouseListener.h
@@ -67,4 +66,3 @@ public:
 
 } // namespace InputListener
 
-#endif // MOUSELISTENER_MOUSELISTENER_H

@@ -1,5 +1,4 @@
-#ifndef INPUTLISTENER_GLOBALSCREEN_H
-#define INPUTLISTENER_GLOBALSCREEN_H
+#pragma once
 
 /**
  * @file GlobalScreen.h
@@ -88,4 +87,3 @@ public:
 
 } // namespace InputListener
 
-#endif // INPUTLISTENER_GLOBALSCREEN_H

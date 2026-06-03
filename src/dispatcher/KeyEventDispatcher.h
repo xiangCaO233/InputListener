@@ -1,5 +1,4 @@
-#ifndef INPUTLISTENER_SRC_DISPATCHER_KEYEVENTDISPATCHER_H
-#define INPUTLISTENER_SRC_DISPATCHER_KEYEVENTDISPATCHER_H
+#pragma once
 
 /**
  * @file KeyEventDispatcher.h
@@ -60,4 +59,3 @@ public:
 
 } // namespace InputListener
 
-#endif // INPUTLISTENER_SRC_DISPATCHER_KEYEVENTDISPATCHER_H

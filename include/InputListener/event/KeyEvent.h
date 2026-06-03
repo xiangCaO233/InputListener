@@ -1,5 +1,4 @@
-#ifndef INPUTLISTENER_EVENT_KEYEVENT_H
-#define INPUTLISTENER_EVENT_KEYEVENT_H
+#pragma once
 
 /**
  * @file KeyEvent.h
@@ -87,4 +86,3 @@ public:
 
 } // namespace InputListener
 
-#endif // INPUTLISTENER_EVENT_KEYEVENT_H

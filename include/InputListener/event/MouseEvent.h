@@ -1,5 +1,4 @@
-#ifndef MOUSEEVENT_MOUSEEVENT_H
-#define MOUSEEVENT_MOUSEEVENT_H
+#pragma once
 
 /**
  * @file MouseEvent.h
@@ -106,4 +105,3 @@ public:
 
 } // namespace InputListener
 
-#endif // MOUSEEVENT_MOUSEEVENT_H

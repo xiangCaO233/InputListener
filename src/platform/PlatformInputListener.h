@@ -1,5 +1,4 @@
-#ifndef INPUTLISTENER_SRC_PLATFORM_PLATFORMINPUTLISTENER_H
-#define INPUTLISTENER_SRC_PLATFORM_PLATFORMINPUTLISTENER_H
+#pragma once
 
 /**
  * @file PlatformInputListener.h
@@ -57,4 +56,3 @@ void stopPlatformInputListener();
 } // namespace Internal
 } // namespace InputListener
 
-#endif // INPUTLISTENER_SRC_PLATFORM_PLATFORMINPUTLISTENER_H

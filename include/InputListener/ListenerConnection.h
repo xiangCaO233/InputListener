@@ -1,5 +1,4 @@
-#ifndef INPUTLISTENER_LISTENERCONNECTION_H
-#define INPUTLISTENER_LISTENERCONNECTION_H
+#pragma once
 
 /**
  * @file ListenerConnection.h
@@ -79,4 +78,3 @@ public:
 
 } // namespace InputListener
 
-#endif // INPUTLISTENER_LISTENERCONNECTION_H

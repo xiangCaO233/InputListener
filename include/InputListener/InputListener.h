@@ -1,5 +1,4 @@
-#ifndef INPUTLISTENER_INPUTLISTENER_H
-#define INPUTLISTENER_INPUTLISTENER_H
+#pragma once
 
 /**
  * @file InputListener.h
@@ -16,4 +15,3 @@
 #include <InputListener/listener/KeyListener.h>
 #include <InputListener/listener/MouseListener.h>
 
-#endif // INPUTLISTENER_INPUTLISTENER_H

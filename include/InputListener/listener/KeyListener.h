@@ -1,5 +1,4 @@
-#ifndef KEYLISTENER_KEYLISTENER_H
-#define KEYLISTENER_KEYLISTENER_H
+#pragma once
 
 /**
  * @file KeyListener.h
@@ -53,4 +52,3 @@ public:
 
 } // namespace InputListener
 
-#endif // KEYLISTENER_KEYLISTENER_H
