@@ -15,9 +15,9 @@ namespace InputListener {
 /**
  * @brief 全局输入事件监听 facade。
  *
- * GlobalScreen 负责启动或停止系统级输入监听，并把平台原生输入事件转换为
- * InputListener 的键盘、鼠标事件对象。公开接口保持跨平台，平台回调和设备枚举
- * 细节保留在库内部实现中。
+ * GlobalScreen 负责启动或停止系统级输入监听，并把平台监听层产出的
+ * KeyEvent / MouseEvent 分发给已注册监听器。公开接口保持跨平台，平台回调、
+ * 设备枚举和原生事件转换细节保留在库内部平台实现中。
  *
  * @note 当前实现维护一个进程级全局监听状态，因此所有成员函数都是静态函数。
  */
@@ -26,15 +26,15 @@ public:
   /**
    * @brief 注册并启动全局输入事件监听。
    *
-   * macOS 上会创建事件 tap 和运行循环线程；Linux 上会枚举输入设备并启动设备
-   * 监听线程。
+   * macOS 上会创建事件 tap 和运行循环线程；Linux 上会枚举所有可识别的
+   * 键盘/鼠标 event 设备并启动监听线程。
    */
   static void registerScreenHook();
 
   /**
    * @brief 停止全局输入事件监听并释放平台资源。
    *
-   * @note Linux 当前设备监听线程仍是分离线程，停止语义后续可继续完善。
+   * @note 停止语义依赖各平台实现；当前 Linux 实现会请求线程退出并等待回收。
    */
   static void unRegisterScreenHook();
 

@@ -8,9 +8,18 @@ option(INPUTLISTENER_BUILD_EXAMPLES "Build InputListener example programs" ON)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+if(APPLE)
+  set(INPUTLISTENER_PLATFORM_SOURCE src/platform/MacOSInputListener.cpp)
+elseif(UNIX)
+  set(INPUTLISTENER_PLATFORM_SOURCE src/platform/LinuxInputListener.cpp)
+else()
+  set(INPUTLISTENER_PLATFORM_SOURCE src/platform/UnsupportedInputListener.cpp)
+endif()
+
 set(INPUTLISTENER_SOURCES
     src/GlobalScreen.cpp
     src/ListenerConnection.cpp
+    ${INPUTLISTENER_PLATFORM_SOURCE}
     src/dispatcher/KeyEventDispatcher.cpp
     src/dispatcher/MouseEventDispatcher.cpp
     src/event/KeyEvent.cpp
