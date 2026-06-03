@@ -17,6 +17,7 @@ enum class MouseEventType {
   RELEASE, ///< 鼠标按键被释放。
   MOVE,    ///< 鼠标移动且没有拖拽。
   DRAG,    ///< 鼠标按键按下时移动。
+  SCROLL,  ///< 鼠标滚轮或触控板滚动。
   PRESSED, ///< 一次完整点击动作结束后的完成事件。
   DRAGGED  ///< 一次完整拖拽动作结束后的完成事件。
 };
@@ -32,6 +33,8 @@ class MouseEvent {
   double xd;              ///< 鼠标位置的浮点 x 坐标。
   int yv;                 ///< 鼠标位置的整数 y 坐标。
   double yd;              ///< 鼠标位置的浮点 y 坐标。
+  double scrollDeltaX;    ///< 水平滚动增量。
+  double scrollDeltaY;    ///< 垂直滚动增量。
 
 public:
   /**
@@ -44,9 +47,11 @@ public:
    * @param y 整数 y 坐标。
    * @param x2d 浮点 x 坐标。
    * @param y2d 浮点 y 坐标。
+   * @param sx 水平滚动增量。
+   * @param sy 垂直滚动增量。
    */
   MouseEvent(int b, const Modifiers &m, MouseEventType t, int x, int y,
-             double x2d, double y2d);
+             double x2d, double y2d, double sx = 0.0, double sy = 0.0);
 
   /**
    * @brief 销毁鼠标事件。
@@ -101,7 +106,20 @@ public:
    * @return 浮点 y 坐标。
    */
   double Y2D() const;
+
+  /**
+   * @brief 获取水平滚动增量。
+   *
+   * @return 水平滚动增量；非滚动事件通常为 0。
+   */
+  double getScrollDeltaX() const;
+
+  /**
+   * @brief 获取垂直滚动增量。
+   *
+   * @return 垂直滚动增量；非滚动事件通常为 0。
+   */
+  double getScrollDeltaY() const;
 };
 
 } // namespace InputListener
-

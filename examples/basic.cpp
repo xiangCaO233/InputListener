@@ -32,7 +32,7 @@ class MyKeyListener : public InputListener::KeyListener {
 };
 
 /**
- * @brief 示例鼠标监听器，打印按下、移动和拖动事件。
+ * @brief 示例鼠标监听器，打印按下、移动、拖动和滚动事件。
  */
 class MyMouseListener : public InputListener::MouseListener {
   /**
@@ -57,6 +57,15 @@ class MyMouseListener : public InputListener::MouseListener {
   void onDrag(const InputListener::MouseEvent &event) override {
     std::cout << "mouse drag: " << event.getButton() << " ["
               << event.X2D() << "," << event.Y2D() << "]" << std::endl;
+  }
+
+  /**
+   * @brief 打印鼠标滚动事件。
+   */
+  void onScroll(const InputListener::MouseEvent &event) override {
+    std::cout << "mouse scroll: dx=" << event.getScrollDeltaX()
+              << " dy=" << event.getScrollDeltaY() << " [" << event.X2D()
+              << "," << event.Y2D() << "]" << std::endl;
   }
 };
 

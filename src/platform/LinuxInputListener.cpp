@@ -56,6 +56,8 @@ struct MouseState {
   int y = 0;                 ///< 累计相对 y 坐标。
   int pendingDx = 0;         ///< 当前 SYN_REPORT 前累计的 x 增量。
   int pendingDy = 0;         ///< 当前 SYN_REPORT 前累计的 y 增量。
+  double pendingScrollX = 0.0; ///< 当前 SYN_REPORT 前累计的水平滚动增量。
+  double pendingScrollY = 0.0; ///< 当前 SYN_REPORT 前累计的垂直滚动增量。
   int activeButton = buttonNone; ///< 当前按下的鼠标按键。
   bool buttonDown = false;       ///< 是否有鼠标按键处于按下状态。
   bool dragged = false;          ///< 当前按键周期内是否发生过拖动。
@@ -186,9 +188,18 @@ DeviceInfo inspectDevice(const std::string &devicePath) {
   if (hasEvents && hasKeys && hasRel && testBit(evbit.data(), EV_REL)) {
     bool hasPointerAxis = testBit(relbit.data(), REL_X) ||
                           testBit(relbit.data(), REL_Y);
+    bool hasScrollAxis = testBit(relbit.data(), REL_WHEEL) ||
+                         testBit(relbit.data(), REL_HWHEEL);
+#ifdef REL_WHEEL_HI_RES
+    hasScrollAxis = hasScrollAxis || testBit(relbit.data(), REL_WHEEL_HI_RES);
+#endif
+#ifdef REL_HWHEEL_HI_RES
+    hasScrollAxis =
+        hasScrollAxis || testBit(relbit.data(), REL_HWHEEL_HI_RES);
+#endif
     bool hasPointerButton = testBit(keybit.data(), BTN_LEFT) ||
                             testBit(keybit.data(), BTN_RIGHT);
-    info.mouse = hasPointerAxis && hasPointerButton;
+    info.mouse = (hasPointerAxis && hasPointerButton) || hasScrollAxis;
   }
 
   close(fd);
@@ -315,7 +326,21 @@ void accumulateMouseMotion(MouseState &state, unsigned short code, int value) {
     state.pendingDx += value;
   } else if (code == REL_Y) {
     state.pendingDy += value;
+  } else if (code == REL_HWHEEL) {
+    state.pendingScrollX += value;
+  } else if (code == REL_WHEEL) {
+    state.pendingScrollY += value;
   }
+#ifdef REL_HWHEEL_HI_RES
+  else if (code == REL_HWHEEL_HI_RES) {
+    state.pendingScrollX += static_cast<double>(value) / 120.0;
+  }
+#endif
+#ifdef REL_WHEEL_HI_RES
+  else if (code == REL_WHEEL_HI_RES) {
+    state.pendingScrollY += static_cast<double>(value) / 120.0;
+  }
+#endif
 }
 
 /**
@@ -342,6 +367,26 @@ void flushMouseMotion(InputEventSink &sink, MouseState &state) {
 
   MouseEvent event(state.activeButton, modifiers, type, state.x, state.y,
                    state.x, state.y);
+  sink.dispatchMouseEvent(event);
+}
+
+/**
+ * @brief 在 SYN_REPORT 到来时把累计滚动转换为 SCROLL 事件。
+ *
+ * @param sink 核心事件接收接口。
+ * @param state 当前鼠标设备的状态。
+ */
+void flushMouseScroll(InputEventSink &sink, MouseState &state) {
+  if (state.pendingScrollX == 0.0 && state.pendingScrollY == 0.0) {
+    return;
+  }
+
+  auto modifiers = snapshotModifiers();
+  MouseEvent event(buttonNone, modifiers, MouseEventType::SCROLL, state.x,
+                   state.y, state.x, state.y, state.pendingScrollX,
+                   state.pendingScrollY);
+  state.pendingScrollX = 0.0;
+  state.pendingScrollY = 0.0;
   sink.dispatchMouseEvent(event);
 }
 
@@ -375,6 +420,7 @@ void listenToDevice(DeviceInfo device, InputEventSink &sink) {
         accumulateMouseMotion(mouseState, ev.code, ev.value);
       } else if (device.mouse && ev.type == EV_SYN && ev.code == SYN_REPORT) {
         flushMouseMotion(sink, mouseState);
+        flushMouseScroll(sink, mouseState);
       }
       continue;
     }

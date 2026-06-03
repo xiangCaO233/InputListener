@@ -50,6 +50,13 @@ public:
   virtual void onDrag(const MouseEvent &e);
 
   /**
+   * @brief 鼠标滚轮或触控板滚动时触发。
+   *
+   * @param e 鼠标滚动事件。
+   */
+  virtual void onScroll(const MouseEvent &e);
+
+  /**
    * @brief 一次鼠标点击动作完成后触发。
    *
    * @param e 鼠标点击完成事件。
@@ -65,4 +72,3 @@ public:
 };
 
 } // namespace InputListener
-

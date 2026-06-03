@@ -40,9 +40,11 @@ void sendKeyEvent(InputEventSink &sink, int rawCode, const char *key,
  * @param location macOS 鼠标坐标。
  */
 void sendMouseEvent(InputEventSink &sink, int button, MouseEventType type,
-                    const Modifiers &modifiers, CGPoint location) {
+                    const Modifiers &modifiers, CGPoint location,
+                    double scrollX = 0.0, double scrollY = 0.0) {
   MouseEvent event(button, modifiers, type, static_cast<int>(location.x),
-                   static_cast<int>(location.y), location.x, location.y);
+                   static_cast<int>(location.y), location.x, location.y,
+                   scrollX, scrollY);
   sink.dispatchMouseEvent(event);
 }
 
@@ -84,6 +86,14 @@ CGEventRef eventCallback(CGEventTapProxy proxy, CGEventType type,
     sendMouseEvent(*sink, 2, MouseEventType::DRAG, modifiers, mouseLocation);
   } else if (type == kCGEventOtherMouseDragged) {
     sendMouseEvent(*sink, 3, MouseEventType::DRAG, modifiers, mouseLocation);
+  } else if (type == kCGEventScrollWheel) {
+    auto vertical =
+        CGEventGetIntegerValueField(event, kCGScrollWheelEventDeltaAxis1);
+    auto horizontal =
+        CGEventGetIntegerValueField(event, kCGScrollWheelEventDeltaAxis2);
+    sendMouseEvent(*sink, 0, MouseEventType::SCROLL, modifiers, mouseLocation,
+                   static_cast<double>(horizontal),
+                   static_cast<double>(vertical));
   } else if (type == kCGEventKeyDown) {
     auto isRepeat = CGEventGetIntegerValueField(
                         event, kCGKeyboardEventAutorepeat) != 0;
@@ -167,7 +177,8 @@ void startPlatformInputListener(InputEventSink &sink) {
           CGEventMaskBit(kCGEventLeftMouseDragged) |
           CGEventMaskBit(kCGEventRightMouseDragged) |
           CGEventMaskBit(kCGEventOtherMouseDragged) |
-          CGEventMaskBit(kCGEventMouseMoved),
+          CGEventMaskBit(kCGEventMouseMoved) |
+          CGEventMaskBit(kCGEventScrollWheel),
       eventCallback, &sink);
 
   if (eventTap == nullptr) {

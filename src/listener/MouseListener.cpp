@@ -23,6 +23,11 @@ void MouseListener::onDrag(const MouseEvent &e) {}
 void MouseListener::onMove(const MouseEvent &e) {}
 
 /**
+ * @brief 鼠标滚动事件的默认空处理。
+ */
+void MouseListener::onScroll(const MouseEvent &e) {}
+
+/**
  * @brief 鼠标点击完成事件的默认空处理。
  */
 void MouseListener::onPressed(const MouseEvent &e) {}

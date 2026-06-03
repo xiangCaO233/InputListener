@@ -65,6 +65,10 @@ void MouseEventDispatcher::dispatchEvent(const MouseEvent &e) {
       l->onDrag(e);
       break;
     }
+    case MouseEventType::SCROLL: {
+      l->onScroll(e);
+      break;
+    }
     case MouseEventType::PRESSED: {
       l->onPressed(e);
       break;
