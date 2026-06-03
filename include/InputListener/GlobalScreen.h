@@ -1,96 +1,91 @@
-#ifndef GLOBALSCREEN_GLOBALSCREEN_H
-#define GLOBALSCREEN_GLOBALSCREEN_H
+#ifndef INPUTLISTENER_GLOBALSCREEN_H
+#define INPUTLISTENER_GLOBALSCREEN_H
 
-#ifdef __APPLE__
-// macos所需头文件
-#include <ApplicationServices/ApplicationServices.h>
-#include <Carbon/Carbon.h>
-#include <CoreFoundation/CoreFoundation.h>
-#include <CoreText/CoreText.h>
-#if TARGET_OS_MAC
-// macos所需声明函数
-#endif // TARGET_OS_MAC
+/**
+ * @file GlobalScreen.h
+ * @brief 提供跨平台全局键盘、鼠标事件监听入口。
+ */
 
-#elif defined(__unix__)
-// Linux所需头文件及声明
-#include <algorithm>
-#include <cerrno>
-#include <cstdio>
-#include <cstring>
-#include <dirent.h>
-#include <fcntl.h>
-#include <iostream>
-#include <linux/input.h>
-#include <string>
-#include <sys/ioctl.h>
-#include <unistd.h>
-
-// 其他 Linux 特定实现
-#endif // defined(__unix__)
-
-// 公共头
-#include <InputListener/dispatcher/KeyEventDispatcher.h>
-#include <InputListener/dispatcher/MouseEventDispatcher.h>
-#include <thread>
+#include <InputListener/ListenerConnection.h>
+#include <InputListener/listener/KeyListener.h>
+#include <InputListener/listener/MouseListener.h>
 
 namespace InputListener {
 
+/**
+ * @brief 全局输入事件监听 facade。
+ *
+ * GlobalScreen 负责启动或停止系统级输入监听，并把平台原生输入事件转换为
+ * InputListener 的键盘、鼠标事件对象。公开接口保持跨平台，平台回调和设备枚举
+ * 细节保留在库内部实现中。
+ *
+ * @note 当前实现维护一个进程级全局监听状态，因此所有成员函数都是静态函数。
+ */
 class GlobalScreen {
-  // 事件派遣器
-  static KeyEventDispatcher keyEventDispatcher;
-  static MouseEventDispatcher mouseEventDispatcher;
-  // 循环线程
-  static std::thread loopThread;
-#ifdef __APPLE__
-  // macos
-  // api事件触
-  static CFMachPortRef eventTap;
-  // api循环源
-  static CFRunLoopSourceRef runLoopSource;
-#elif defined(__unix__)
-  // linux
-#endif
 public:
-  // 公共
-  // 注册全局钩子
+  /**
+   * @brief 注册并启动全局输入事件监听。
+   *
+   * macOS 上会创建事件 tap 和运行循环线程；Linux 上会枚举输入设备并启动设备
+   * 监听线程。
+   */
   static void registerScreenHook();
-  // 添加按键监听器
-  static void addKeyListener(KeyListener *listener);
-  // 移除按键监听器
-  static void removeKeyListener(KeyListener *listener);
-  // 添加鼠标监听器
-  static void addMouseListener(MouseListener *listener);
-  // 移除鼠标监听器
-  static void removeMouseListener(MouseListener *listener);
-  // 停止捕获
+
+  /**
+   * @brief 停止全局输入事件监听并释放平台资源。
+   *
+   * @note Linux 当前设备监听线程仍是分离线程，停止语义后续可继续完善。
+   */
   static void unRegisterScreenHook();
-#ifdef __APPLE__
-  // macos
-  // api事件回调
-  static CGEventRef mcallback(CGEventTapProxy proxy, CGEventType type,
-                              CGEventRef event, void *refcon);
-  // 获取按下按键的字符
-  static const char *mGetCharacterFromKeyCode(CGKeyCode keyCode,
-                                              bool shiftPressed);
-  // 发送按键事件到派遣器
-  static void msendKeyEvent(CGKeyCode rawCode, const char *key,
-                            KeyEventType type, Modifiers &modifiers);
-  // 发送鼠标事件到派遣器
-  static void msendMouseEvent(int button, MouseEventType type,
-                              Modifiers &modifiers, CGPoint &location);
-#elif defined(__unix__)
-  // linux
-  // 获取设备名称
-  static std::string getDeviceName(const std::string &devicePath);
-  // 检查是否是键盘
-  static bool isKeyboard(const std::string &devicePath);
-  // 检查是否是鼠标
-  static bool isMouse(const std::string &devicePath);
-  // 开始监听指定设备
-  static void listenToDevice(const std::string &devicePath);
-#endif
+
+  /**
+   * @brief 添加键盘监听器并返回自动解绑句柄。
+   *
+   * @param listener 生命周期必须长于返回的 ListenerConnection。
+   * @return ListenerConnection 析构或调用 disconnect() 时会自动解绑 listener。
+   */
+  [[nodiscard]] static ListenerConnection addKeyListener(KeyListener &listener);
+
+  /**
+   * @brief 添加鼠标监听器并返回自动解绑句柄。
+   *
+   * @param listener 生命周期必须长于返回的 ListenerConnection。
+   * @return ListenerConnection 析构或调用 disconnect() 时会自动解绑 listener。
+   */
+  [[nodiscard]] static ListenerConnection
+  addMouseListener(MouseListener &listener);
+
+  /**
+   * @brief 添加键盘监听器的裸指针兼容接口。
+   *
+   * @param listener 要注册的监听器；传入 nullptr 时内部会忽略。
+   * @warning 调用方需要保证 listener 在 removeKeyListener() 之前保持有效。
+   */
+  static void addKeyListener(KeyListener *listener);
+
+  /**
+   * @brief 移除通过裸指针接口添加的键盘监听器。
+   *
+   * @param listener 要移除的监听器指针。
+   */
+  static void removeKeyListener(KeyListener *listener);
+
+  /**
+   * @brief 添加鼠标监听器的裸指针兼容接口。
+   *
+   * @param listener 要注册的监听器；传入 nullptr 时内部会忽略。
+   * @warning 调用方需要保证 listener 在 removeMouseListener() 之前保持有效。
+   */
+  static void addMouseListener(MouseListener *listener);
+
+  /**
+   * @brief 移除通过裸指针接口添加的鼠标监听器。
+   *
+   * @param listener 要移除的监听器指针。
+   */
+  static void removeMouseListener(MouseListener *listener);
 };
 
 } // namespace InputListener
 
-#endif // GLOBALSCREEN_GLOBALSCREEN_H
+#endif // INPUTLISTENER_GLOBALSCREEN_H

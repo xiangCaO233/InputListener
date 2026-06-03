@@ -1,310 +1,90 @@
-#ifndef KEYEVENT_KEYEVENT_H
-#define KEYEVENT_KEYEVENT_H
+#ifndef INPUTLISTENER_EVENT_KEYEVENT_H
+#define INPUTLISTENER_EVENT_KEYEVENT_H
 
-#include <unordered_map>
+/**
+ * @file KeyEvent.h
+ * @brief 定义键盘事件数据结构。
+ */
+
+#include <string>
 
 namespace InputListener {
 
+/**
+ * @brief 输入事件触发时处于按下状态的修饰键集合。
+ */
 struct Modifiers {
-  bool shift = false;
-  bool control = false;
-  bool option = false;
-  bool command = false;
+  bool shift = false;   ///< Shift 键是否处于按下状态。
+  bool control = false; ///< Control 键是否处于按下状态。
+  bool option = false;  ///< Option/Alt 键是否处于按下状态。
+  bool command = false; ///< Command/Meta 键是否处于按下状态。
 };
 
-enum class KeyEventType { PRESS, RELEASE, PRESSED };
+/**
+ * @brief 键盘事件类型。
+ */
+enum class KeyEventType {
+  PRESS,   ///< 按键被按下。
+  RELEASE, ///< 按键被释放。
+  REPEAT,  ///< 按键保持按下并产生系统重复事件。
+  PRESSED  ///< 一次完整按下释放动作结束后的完成事件。
+};
 
-namespace Mapping {
-
-#ifdef __APPLE__
-// 不按住 Shift 时的输出
-inline const std::unordered_map<int, const char *> normalKeyMap = {
-    {0, "a"},
-    {11, "b"},
-    {8, "c"},
-    {2, "d"},
-    {14, "e"},
-    {3, "f"},
-    {5, "g"},
-    {4, "h"},
-    {34, "i"},
-    {38, "j"},
-    {40, "k"},
-    {37, "l"},
-    {46, "m"},
-    {45, "n"},
-    {31, "o"},
-    {35, "p"},
-    {12, "q"},
-    {15, "r"},
-    {1, "s"},
-    {17, "t"},
-    {32, "u"},
-    {9, "v"},
-    {13, "w"},
-    {7, "x"},
-    {16, "y"},
-    {6, "z"},
-    {29, "0"},
-    {18, "1"},
-    {19, "2"},
-    {20, "3"},
-    {21, "4"},
-    {23, "5"},
-    {22, "6"},
-    {26, "7"},
-    {28, "8"},
-    {25, "9"},
-    // 特殊键
-    {49, "\u2420"},  // space
-    {36, "\u21B5"},  // enter
-    {48, "\u21E5"},  // tab
-    {56, "\u21E7"},  // lshift
-    {59, "\u2303"},  // lctrl
-    {62, "\u2303"},  // lctrl
-    {58, "\u2387"},  // lalt
-    {55, "\u2318"},  // lcommand
-    {60, "\u21E7"},  // rshift
-    {257, "\2303"},  // rctrl
-    {61, "\u2387"},  // ralt
-    {54, "\u2318"},  // rcommand
-    {53, "\u238B"},  // esc
-    {57, "\u21EA"},  // capslock
-    {179, "\u2384"}, // fn
-    {63, "\u2384"},  // fn
-    {51, "\u232B"},  // backspace
-    {117, "\u232B"}, // delete
-    {255, "\u2328"}, // 输入法切换
-
-    // 功能键
-    {122, "<F1>"},
-    {120, "<F2>"},
-    {99, "<F3>"},
-    {118, "<F4>"},
-    {96, "<F5>"},
-    {97, "<F6>"},
-    {98, "<F7>"},
-    {100, "<F8>"},
-    {101, "<F9>"},
-    {109, "<F10>"},
-    {103, "<F11>"},
-    {111, "<F12>"},
-
-    // 符号键
-    {50, "`"},
-    {27, "-"},
-    {24, "="},
-    {33, "["},
-    {30, "]"},
-    {42, "\\"},
-    {41, ";"},
-    {39, "'"},
-    {43, ","},
-    {47, "."},
-    {44, "/"},
-
-    // 方向键
-    {123, "←"},
-    {124, "→"},
-    {126, "↑"},
-    {125, "↓"}};
-
-// 按住 Shift 时的输出
-inline const std::unordered_map<int, const char *> shiftKeyMap = {
-    {0, "A"},
-    {11, "B"},
-    {8, "C"},
-    {2, "D"},
-    {14, "E"},
-    {3, "F"},
-    {5, "G"},
-    {4, "H"},
-    {34, "I"},
-    {38, "J"},
-    {40, "K"},
-    {37, "L"},
-    {46, "M"},
-    {45, "N"},
-    {31, "O"},
-    {35, "P"},
-    {12, "Q"},
-    {15, "R"},
-    {1, "S"},
-    {17, "T"},
-    {32, "U"},
-    {9, "V"},
-    {13, "W"},
-    {7, "X"},
-    {16, "Y"},
-    {6, "Z"},
-    {29, ")"},
-    {18, "!"},
-    {19, "@"},
-    {20, "#"},
-    {21, "$"},
-    {23, "%"},
-    {22, "^"},
-    {26, "&"},
-    {28, "*"},
-    {25, "("},
-
-    // 特殊键
-    {49, "\u2420"},  // space
-    {36, "\u21B5"},  // enter
-    {48, "\u21E5"},  // tab
-    {56, "\u21E7"},  // lshift
-    {59, "\u2303"},  // lctrl
-    {62, "\u2303"},  // lctrl
-    {58, "\u2387"},  // lalt
-    {55, "\u2318"},  // lcommand
-    {60, "\u21E7"},  // rshift
-    {257, "\2303"},  // rctrl
-    {61, "\u2387"},  // ralt
-    {54, "\u2318"},  // rcommand
-    {53, "\u238B"},  // esc
-    {57, "\u21EA"},  // capslock
-    {179, "\u2384"}, // fn
-    {63, "\u2384"},  // fn
-    {51, "\u232B"},  // backspace
-    {117, "\u232B"}, // delete
-    {255, "\u2328"}, // 输入法切换
-
-    // 功能键
-    {122, "<F1>"},
-    {120, "<F2>"},
-    {99, "<F3>"},
-    {118, "<F4>"},
-    {96, "<F5>"},
-    {97, "<F6>"},
-    {98, "<F7>"},
-    {100, "<F8>"},
-    {101, "<F9>"},
-    {109, "<F10>"},
-    {103, "<F11>"},
-    {111, "<F12>"},
-
-    // 符号键
-    {50, "~"},
-    {27, "_"},
-    {24, "+"},
-    {33, "{"},
-    {30, "}"},
-    {42, "|"},
-    {41, ":"},
-    {39, "\""},
-    {43, "<"},
-    {47, ">"},
-    {44, "?"},
-
-    // 方向键
-    {123, "\u2B05"},//left
-    {124, "\u27A1"},//right
-    {126, "\u2B06"},//up
-    {125, "\u2B07"}};//down
-#endif //__APPLE__
-#ifdef __unix__
-inline const std::unordered_map<int, const char *> linux_keymap = {
-    {2, "1"},        {3, "2"},    {4, "3"},    {5, "4"},      {6, "5"},
-    {7, "6"},        {8, "7"},    {9, "8"},    {10, "9"},     {11, "0"},
-    {16, "q"},       {17, "w"},   {18, "e"},   {19, "r"},     {20, "t"},
-    {21, "y"},       {22, "u"},   {23, "i"},   {24, "o"},     {25, "p"},
-    {30, "a"},       {31, "s"},   {32, "d"},   {33, "f"},     {34, "g"},
-    {35, "h"},       {36, "j"},   {37, "k"},   {38, "l"},     {44, "z"},
-    {45, "x"},       {46, "c"},   {47, "v"},   {48, "b"},     {49, "n"},
-    {50, "m"},       {59, "F1"},  {60, "F2"},  {61, "F3"},    {62, "F4"},
-    {63, "F5"},      {64, "F6"},  {65, "F7"},  {66, "F8"},    {67, "F9"},
-    {68, "F10"},     {87, "F11"}, {88, "F12"}, {1, "\u238B"}, // esc
-    {14, "\u232B"},                                           // backspace
-    {15, "\u21E5"},                                           // tab
-    {28, "\u21B5"},                                           // enter
-    {29, "\u2303"},                                           // lctrl
-    {42, "\u21E7"},                                           // lshift
-    {56, "\u2387"},                                           // lalt
-    {57, "\u2420"},                                           // space
-    {58, "\u21EA"},                                           // capslock
-    {54, "\u21E7"},                                           // rshift
-    {100, "\u2387"},                                          // ralt
-    {97, "\u2303"},                                           // rctrl
-    {125, "\u2318"},                                          // lmeta
-    {126, "\u2318"},                                          // rmeta
-    {102, "\u2196"},                                          // home
-    {103, "\u2B06"},                                              // up
-    {104, "\u21DE"},                                          // page up
-    {105, "\u2B05"},                                            // left
-    {106, "\u27A1"},                                           // right
-    {107, "\u2198"},                                          // end
-    {108, "\u2B07"},                                            // down
-    {109, "\u21DF"},                                          // page down
-    {110, "Insert"},                                          // ins
-    {111, "\u232B"},                                          // del
-    {99, "PrtSc"},                                            // PrtSc
-    {12, "-"},       {13, "="},   {26, "["},   {27, "]"},     {39, ";"},
-    {40, "'"},       {41, "`"},   {43, "\\"},  {51, ","},     {52, "."},
-    {53, "/"}};
-
-inline const std::unordered_map<int, const char *> linux_shift_keymap = {
-    {2, "!"},        {3, "@"},    {4, "#"},    {5, "$"},      {6, "%"},
-    {7, "^"},        {8, "&"},    {9, "*"},    {10, "("},     {11, ")"},
-    {16, "Q"},       {17, "W"},   {18, "E"},   {19, "R"},     {20, "T"},
-    {21, "Y"},       {22, "U"},   {23, "I"},   {24, "O"},     {25, "P"},
-    {30, "A"},       {31, "S"},   {32, "D"},   {33, "F"},     {34, "G"},
-    {35, "H"},       {36, "J"},   {37, "K"},   {38, "L"},     {44, "Z"},
-    {45, "X"},       {46, "C"},   {47, "V"},   {48, "B"},     {49, "N"},
-    {50, "M"},       {59, "F1"},  {60, "F2"},  {61, "F3"},    {62, "F4"},
-    {63, "F5"},      {64, "F6"},  {65, "F7"},  {66, "F8"},    {67, "F9"},
-    {68, "F10"},     {87, "F11"}, {88, "F12"}, {1, "\u238B"}, // esc
-    {14, "\u232B"},                                           // backspace
-    {15, "\u21E5"},                                           // tab
-    {28, "\u21B5"},                                           // enter
-    {29, "\u2303"},                                           // lctrl
-    {42, "\u21E7"},                                           // lshift
-    {56, "\u2387"},                                           // lalt
-    {57, "\u2420"},                                           // space
-    {58, "\u21EA"},                                           // capslock
-    {54, "\u21E7"},                                           // rshift
-    {100, "\u2387"},                                          // ralt
-    {97, "\u2303"},                                           // rctrl
-    {125, "\u2318"},                                          // lmeta
-    {126, "\u2318"},                                          // rmeta
-    {102, "\u2196"},                                          // home
-    {103, "\u2B06"},                                              // up
-    {104, "\u21DE"},                                          // page up
-    {105, "\u2B05"},                                            // left
-    {106, "\u27A1"},                                           // right
-    {107, "\u2198"},                                          // end
-    {108, "\u2B07"},                                            // down
-    {109, "\u21DF"},                                          // page down
-    {110, "Ins"},                                          // ins
-    {111, "\u232B"},                                          // del
-    {99, "PrtSc"},                                            // PrtSc
-    {12, "_"},       {13, "+"},   {26, "{"},   {27, "}"},     {39, ":"},
-    {40, "\""},       {41, "~"},   {43, "|"},  {51, "<"},     {52, ">"},
-    {53, "?"}};
-#endif //__unix__
-} // namespace Mapping
-
+/**
+ * @brief 平台原生键盘事件转换后的跨平台键盘事件。
+ */
 class KeyEvent {
-  // 原始键值
-  int rawCode;
-  // 键
-  const char *key;
-  // 修饰符
-  Modifiers modifiers;
-  // 事件类型
-  KeyEventType type;
-  // 时间戳
-  long long time;
+  int rawCode;           ///< 平台提供的原始键码。
+  std::string key;       ///< 根据当前键盘映射得到的可显示按键文本。
+  Modifiers modifiers;   ///< 事件发生时的修饰键状态。
+  KeyEventType type;     ///< 当前键盘事件类型。
 
 public:
-  KeyEvent(int r, const char *k, Modifiers &m, KeyEventType type);
+  /**
+   * @brief 构造键盘事件。
+   *
+   * @param rawCode 平台原始键码。
+   * @param key 可显示按键文本；不可识别时可为空字符串。
+   * @param modifiers 事件发生时的修饰键状态。
+   * @param type 键盘事件类型。
+   */
+  KeyEvent(int rawCode, std::string key, const Modifiers &modifiers,
+           KeyEventType type);
+
+  /**
+   * @brief 销毁键盘事件。
+   */
   ~KeyEvent();
 
+  /**
+   * @brief 获取平台原始键码。
+   *
+   * @return 平台原始键码。
+   */
   int getRawCode() const;
-  const char *getKey() const;
+
+  /**
+   * @brief 获取可显示按键文本。
+   *
+   * @return 按键文本引用。
+   */
+  const std::string &getKey() const;
+
+  /**
+   * @brief 获取事件发生时的修饰键状态。
+   *
+   * @return 修饰键状态值。
+   */
   Modifiers getModifiers() const;
+
+  /**
+   * @brief 获取键盘事件类型。
+   *
+   * @return 键盘事件类型。
+   */
   KeyEventType getType() const;
 };
 
 } // namespace InputListener
 
-#endif // KEYEVENT_KEYEVENT_H
+#endif // INPUTLISTENER_EVENT_KEYEVENT_H

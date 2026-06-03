@@ -10,6 +10,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(INPUTLISTENER_SOURCES
     src/GlobalScreen.cpp
+    src/ListenerConnection.cpp
     src/dispatcher/KeyEventDispatcher.cpp
     src/dispatcher/MouseEventDispatcher.cpp
     src/event/KeyEvent.cpp
@@ -25,7 +26,8 @@ target_compile_features(InputListener PUBLIC cxx_std_17)
 target_include_directories(
   InputListener
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 find_package(Threads REQUIRED)
 target_link_libraries(InputListener PUBLIC Threads::Threads)
