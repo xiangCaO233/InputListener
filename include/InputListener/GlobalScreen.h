@@ -9,7 +9,8 @@
 #include <InputListener/listener/KeyListener.h>
 #include <InputListener/listener/MouseListener.h>
 
-namespace InputListener {
+namespace InputListener
+{
 
 /**
  * @brief 全局输入事件监听 facade。
@@ -20,70 +21,73 @@ namespace InputListener {
  *
  * @note 当前实现维护一个进程级全局监听状态，因此所有成员函数都是静态函数。
  */
-class GlobalScreen {
+class GlobalScreen
+{
 public:
-  /**
-   * @brief 注册并启动全局输入事件监听。
-   *
-   * macOS 上会创建事件 tap 和运行循环线程；Linux 上会枚举所有可识别的
-   * 键盘/鼠标 event 设备并启动监听线程。
-   */
-  static void registerScreenHook();
+    /**
+     * @brief 注册并启动全局输入事件监听。
+     *
+     * macOS 上会创建事件 tap 和运行循环线程；Linux 上会枚举所有可识别的
+     * 键盘/鼠标 event 设备并启动监听线程。
+     */
+    static void registerScreenHook();
 
-  /**
-   * @brief 停止全局输入事件监听并释放平台资源。
-   *
-   * @note 停止语义依赖各平台实现；当前 Linux 实现会请求线程退出并等待回收。
-   */
-  static void unRegisterScreenHook();
+    /**
+     * @brief 停止全局输入事件监听并释放平台资源。
+     *
+     * @note 停止语义依赖各平台实现；当前 Linux 实现会请求线程退出并等待回收。
+     */
+    static void unRegisterScreenHook();
 
-  /**
-   * @brief 添加键盘监听器并返回自动解绑句柄。
-   *
-   * @param listener 生命周期必须长于返回的 ListenerConnection。
-   * @return ListenerConnection 析构或调用 disconnect() 时会自动解绑 listener。
-   */
-  [[nodiscard]] static ListenerConnection addKeyListener(KeyListener &listener);
+    /**
+     * @brief 添加键盘监听器并返回自动解绑句柄。
+     *
+     * @param listener 生命周期必须长于返回的 ListenerConnection。
+     * @return ListenerConnection 析构或调用 disconnect() 时会自动解绑
+     * listener。
+     */
+    [[nodiscard]] static ListenerConnection addKeyListener(
+        KeyListener& listener);
 
-  /**
-   * @brief 添加鼠标监听器并返回自动解绑句柄。
-   *
-   * @param listener 生命周期必须长于返回的 ListenerConnection。
-   * @return ListenerConnection 析构或调用 disconnect() 时会自动解绑 listener。
-   */
-  [[nodiscard]] static ListenerConnection
-  addMouseListener(MouseListener &listener);
+    /**
+     * @brief 添加鼠标监听器并返回自动解绑句柄。
+     *
+     * @param listener 生命周期必须长于返回的 ListenerConnection。
+     * @return ListenerConnection 析构或调用 disconnect() 时会自动解绑
+     * listener。
+     */
+    [[nodiscard]] static ListenerConnection addMouseListener(
+        MouseListener& listener);
 
-  /**
-   * @brief 添加键盘监听器的裸指针兼容接口。
-   *
-   * @param listener 要注册的监听器；传入 nullptr 时内部会忽略。
-   * @warning 调用方需要保证 listener 在 removeKeyListener() 之前保持有效。
-   */
-  static void addKeyListener(KeyListener *listener);
+    /**
+     * @brief 添加键盘监听器的裸指针兼容接口。
+     *
+     * @param listener 要注册的监听器；传入 nullptr 时内部会忽略。
+     * @warning 调用方需要保证 listener 在 removeKeyListener() 之前保持有效。
+     */
+    static void addKeyListener(KeyListener* listener);
 
-  /**
-   * @brief 移除通过裸指针接口添加的键盘监听器。
-   *
-   * @param listener 要移除的监听器指针。
-   */
-  static void removeKeyListener(KeyListener *listener);
+    /**
+     * @brief 移除通过裸指针接口添加的键盘监听器。
+     *
+     * @param listener 要移除的监听器指针。
+     */
+    static void removeKeyListener(KeyListener* listener);
 
-  /**
-   * @brief 添加鼠标监听器的裸指针兼容接口。
-   *
-   * @param listener 要注册的监听器；传入 nullptr 时内部会忽略。
-   * @warning 调用方需要保证 listener 在 removeMouseListener() 之前保持有效。
-   */
-  static void addMouseListener(MouseListener *listener);
+    /**
+     * @brief 添加鼠标监听器的裸指针兼容接口。
+     *
+     * @param listener 要注册的监听器；传入 nullptr 时内部会忽略。
+     * @warning 调用方需要保证 listener 在 removeMouseListener() 之前保持有效。
+     */
+    static void addMouseListener(MouseListener* listener);
 
-  /**
-   * @brief 移除通过裸指针接口添加的鼠标监听器。
-   *
-   * @param listener 要移除的监听器指针。
-   */
-  static void removeMouseListener(MouseListener *listener);
+    /**
+     * @brief 移除通过裸指针接口添加的鼠标监听器。
+     *
+     * @param listener 要移除的监听器指针。
+     */
+    static void removeMouseListener(MouseListener* listener);
 };
 
-} // namespace InputListener
-
+}  // namespace InputListener
