@@ -10,6 +10,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if(APPLE)
   set(INPUTLISTENER_PLATFORM_SOURCE src/platform/MacOSInputListener.cpp)
+elseif(WIN32)
+  set(INPUTLISTENER_PLATFORM_SOURCE src/platform/WindowsInputListener.cpp)
 elseif(UNIX)
   set(INPUTLISTENER_PLATFORM_SOURCE src/platform/LinuxInputListener.cpp)
 else()
@@ -32,6 +34,10 @@ add_library(InputListener::InputListener ALIAS InputListener)
 
 target_compile_features(InputListener PUBLIC cxx_std_17)
 
+if(MSVC)
+  target_compile_options(InputListener PUBLIC /utf-8)
+endif()
+
 target_include_directories(
   InputListener
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -49,6 +55,10 @@ if(APPLE)
   target_link_libraries(InputListener PUBLIC ${CARBON_LIBRARY}
                                              ${COREFOUNDATION_LIBRARY}
                                              ${APPLICATION_SERVICES_LIBRARY})
+endif()
+
+if(WIN32)
+  target_link_libraries(InputListener PUBLIC user32)
 endif()
 
 if(INPUTLISTENER_BUILD_EXAMPLES)
